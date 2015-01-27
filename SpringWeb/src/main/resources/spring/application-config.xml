@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- Uncomment and add your base-package here:
+         <context:component-scan
+            base-package="org.springframework.samples.service"/>  -->
+
+		<context:component-scan base-package="dao"/>
+   		<context:component-scan base-package="logic"/>
+	
+	<!-- jdbc properties -->
+   <bean id="propertyConfigurer"
+      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="locations">
+         <list>
+            <value>classpath:mybatis/db.properties</value>
+         </list>
+      </property>
+   </bean>
+   <!-- DataSource 설정 -->
+   <bean id="dataSource"
+      class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName"><value>${driver}</value></property>
+      <property name="url"><value>${url}</value></property>
+      <property name="username"><value>${username}</value></property>
+      <property name="password"><value>${password}</value></property>
+   </bean>
+	
+	<!-- Session Factory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation">
+			<value>classpath:mybatis/Configuration.xml</value>
+		</property>
+		
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:mybatis/BoardMapper.xml</value>
+				<value>classpath:mybatis/UserMapper.xml</value>
+			</list>
+		</property>
+		
+		
+	</bean>
+	
+	<!-- Transaction 설정 -->
+	<bean id = "transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+</beans>

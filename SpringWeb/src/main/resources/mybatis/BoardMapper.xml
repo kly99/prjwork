@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<!-- 프로젝트시 쿼리문을 취합하기 좋다. -->
+	<mapper namespace = "dao.BoardDAO">
+	 <!-- 쿼리문의 결과값이 Board.java로 넘어간다. Configration.xml의 Type alias 에서 설정함. -->
+		<select id="getBoardList" resultType="Board">
+			select * from Board
+		</select>
+		
+	<!-- 게시글 순서 -->
+	<select id ="getBoardListPaging" resultType="Board" parameterType="java.util.Map"><!-- 값이 여러개 일때는 Board가 아닌 맵이나 해쉬맵으로도 쓰일 수 있다. -->
+		select * from(
+		select a.*, rownum rnum from
+		(select * from board order by num desc) a) where rnum &gt;=#{start} and rnum &lt;=#{end} <!-- 값은 맵 start ,  end -->
+	</select>
+	
+	<!-- 새 글쓰기 -->
+		<insert id="insertBoard" parameterType="Board">
+      <selectKey keyProperty="num" resultType="int" 
+               order="BEFORE">
+         select board_seq.nextval from dual
+      </selectKey>
+      insert into board (
+         num, userid, title, regdate,
+         content, count, filename, ref
+      )
+      values (
+         #{num}, #{userid}, #{title}, sysdate,
+         #{content}, #{count}, #{filename}, board_seq.currval
+      )
+   </insert>
+		
+		<!-- 동영상 추가 -->
+		<insert id="insertBoardFile" parameterType="BoardFile">
+		       INSERT INTO boardfile(
+		      num,boardnum,filename
+		      ) VALUES(
+		      boardfile_seq.nextval, #{boardnum}, #{filename}
+		      )
+		</insert>
+		
+	<!-- 동영상 넘버 가져오기 -->
+		<select id="getBoardFile" resultType="BoardFile" parameterType="BoardFile">
+		select * from boardfile where boardnum = #{num}
+		
+		</select>
+		
+	<!--  수정하기 -->
+		<update id="updateBoard" parameterType="Board">
+			update board set title = #{title}, filename = #{filename}, content = #{content}
+								where num = #{num} 
+		</update>
+		
+	<!-- 삭제하기 -->
+		<delete id="deleteBoard" parameterType="Integer">
+			delete from board where num = #{num}
+		</delete>
+		
+	<!-- 카운트 하기  -->
+		<select id = "getBoardCount" resultType="Integer">
+			select count(*) from board
+		</select>
+		
+	<!-- 조회수 증가 -->	
+		<update id="updateCount" parameterType="Integer">
+			update board set count = count + 1
+								where num = #{num} 
+		</update>
+		
+	<!-- 찾기?  -->
+		<select id="getBoard" resultType="Board" parameterType="Integer">
+			select * from board where num = #{num}
+		</select>
+		
+	
+	
+	</mapper>

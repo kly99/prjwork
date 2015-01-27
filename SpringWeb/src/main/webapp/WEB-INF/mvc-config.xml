@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- Uncomment and your base-package here:
+         <context:component-scan
+            base-package="org.springframework.samples.web"/>  -->
+
+	<!-- controller 패키지 들어있는 모든 클래스를 스캔한다. -->
+	 	<context:component-scan base-package="controller"></context:component-scan> 
+		
+		<bean id="boardListController" class="controller.BoardListController">
+			<property name="pageBlockSize" value="3" /> <!-- 페이지 size 설정 -->
+			<property name="pageSize" value="5" /><!-- 게시물 size 설정 -->
+		</bean>
+		
+		<!--  위 아래 같은 방법 // 아래는 스키마 p를 이용한 간단한 코딩 -->
+		<!-- <bean id="boardSelectController" class="controller.BoardSelectController" p:boardLogic-ref="boardLogic" />
+		<bean id="boardInsertController" class="controller.BoardInsertController" p:boardLogic-ref="boardLogic" />
+		<bean id="boardUpdateController" class="controller.BoardUpdateController" p:boardLogic-ref="boardLogic" />
+		<bean id="boardDeleteController" class="controller.BoardDeleteController" p:boardLogic-ref="boardLogic" /> -->
+
+    <mvc:annotation-driven /><!-- 순서를 바꿔서는 안된다. -->
+    
+    <mvc:resources location="/images/" mapping="/images/**"/>
+    <mvc:resources location="/js/" mapping="/js/**"/>
+    <mvc:resources location="/css/" mapping="/css/**"/>
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	        <!-- Example: a logical view name of 'showMessage' is mapped to '/WEB-INF/jsp/showMessage.jsp' -->
+	        <property name="prefix" value="/WEB-INF/view/"/>
+	        <property name="suffix" value=".jsp"/>
+	</bean>
+	
+	<!-- multipart resolver -->
+		<bean id = "multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+			<property name="maxUploadSize"><value>10000000</value></property>
+		</bean>
+		
+	<!-- AOP 처리 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<bean class="aop.AuthorizeAspect" />
+	
+	<!--  예외처리 -->
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+			
+	 			<prop key="aop.InvalidLoginException">
+					signUp
+				</prop>
+
+			</props>
+		</property>
+	</bean>
+
+</beans>
